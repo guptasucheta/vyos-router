@@ -1,11 +1,18 @@
 name: VyOS Nightly Build
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      gcp_project_id:
+        description: "GCP Project ID where the image will be uploaded"
+        required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: ${{ github.event.inputs.gcp_project_id }}
+      GCS_BUCKET: vyos-images
     steps:
       - name: Checkout vyos-build repository
         uses: actions/checkout@v4
@@ -26,6 +33,13 @@ jobs:
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ env.PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
+
+      - name: Upload image to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: vyos.iso
+          destination: gs://${{ env.GCS_BUCKET }}/vyos-${{ github.run_number }}.iso
+          project_id: ${{ env.PROJECT_ID }}
