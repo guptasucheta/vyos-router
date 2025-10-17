@@ -22,7 +22,7 @@ jobs:
 
 #      - name: Build VyOS ISO
 #        run: |
-#          docker run --rm --privileged -v $(pwd)/vyos-build:/vyos -w /vyos vyos/vyos-build:current bash -c "sudo ./build-vyos-image generic --architecture amd64"
+#          sudo docker run --rm --privileged -v $(pwd)/vyos-build:/vyos -w /vyos vyos/vyos-build:current bash -c "sudo ./build-vyos-image generic --architecture amd64"
      
       - name: Build VyOS Generic ISO
         run: |
