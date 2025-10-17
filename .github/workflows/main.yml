@@ -37,9 +37,9 @@ jobs:
             exit 1
           fi
           
-          TAR_FILE=\"${ISO_FILE%.iso}.tar.gz\"
+          TAR_FILE="${ISO_FILE%.iso}.tar.gz"
           echo \"Compressing $ISO_FILE into $TAR_FILE\"
-          sudo tar -czvf \"$TAR_FILE\" \"$ISO_FILE\"
+          sudo tar -czvf "$TAR_FILE" "$ISO_FILE"
           
 #      - name: Upload VyOS ISO
 #        uses: actions/upload-artifact@v4
