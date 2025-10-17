@@ -15,7 +15,7 @@ jobs:
 
       - name: Build VyOS ISO
         run: |
-          docker run --rm --privileged -v $(pwd)/vyos-build:/vyos -w /vyos vyos/vyos-build:current bash -c "sudo ./build-vyos-image iso --architecture amd64"
+          docker run --rm --privileged -v $(pwd)/vyos-build:/vyos -w /vyos vyos/vyos-build:current bash -c "sudo ./build-vyos-image generic --architecture amd64"
 
       - name: Upload VyOS ISO
         uses: actions/upload-artifact@v4
