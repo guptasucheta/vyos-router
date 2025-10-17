@@ -30,7 +30,7 @@ jobs:
           ISO_FILE=$(ls vyos-*.iso | head -n 1)
           TAR_FILE=\"${ISO_FILE%.iso}.tar.gz\"
           echo \"Compressing $ISO_FILE into $TAR_FILE\"
-          tar -czvf \"$TAR_FILE\" \"$ISO_FILE\"
+          sudo tar -czvf \"$TAR_FILE\" \"$ISO_FILE\"
           
 #      - name: Upload VyOS ISO
 #        uses: actions/upload-artifact@v4
