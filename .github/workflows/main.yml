@@ -27,7 +27,16 @@ jobs:
       - name: Convert ISO to tar.gz
         run: |
           cd vyos-build/build
+          echo "Fixing permissions..."
+          sudo chown -R $USER:$USER .
+          echo "Looking for ISO..."
+          ls -l
           ISO_FILE=$(ls vyos-*.iso | head -n 1)
+          if [ -z "$ISO_FILE" ]; then
+            echo "❌ No ISO file found in $(pwd)"
+            exit 1
+          fi
+          
           TAR_FILE=\"${ISO_FILE%.iso}.tar.gz\"
           echo \"Compressing $ISO_FILE into $TAR_FILE\"
           sudo tar -czvf \"$TAR_FILE\" \"$ISO_FILE\"
