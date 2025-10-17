@@ -20,18 +20,10 @@ jobs:
           repository: vyos/vyos-build
           path: vyos-build
 
-#      - name: Build VyOS ISO
-#        run: |
-#          sudo docker run --rm --privileged -v $(pwd)/vyos-build:/vyos -w /vyos vyos/vyos-build:current bash -c "sudo ./build-vyos-image generic --architecture amd64"
-     
-      - name: Build VyOS Generic ISO
+      - name: Build VyOS ISO
         run: |
-          cd vyos-build
-          docker run --rm -v $PWD:/vyos -w /vyos vyos/vyos-build:current bash -c "
-            apt-get update && apt-get install -y ca-certificates sudo
-            update-ca-certificates
-            make iso
-          "          
+         sudo docker run --rm --privileged -v $(pwd)/vyos-build:/vyos -w /vyos vyos/vyos-build:current bash -c "sudo ./build-vyos-image generic --architecture amd64"
+         
       - name: Convert ISO to tar.gz
         run: |
           cd vyos-build/build
