@@ -24,13 +24,12 @@ jobs:
           ref: equuleus      # VyOS 1.3 (LTS) branch
           path: vyos-build
 
-
       - name: Build VyOS GCP RAW image
         run: |
           cd vyos-build
           sudo docker run --rm --privileged \
             -v $(pwd):/vyos -w /vyos vyos/vyos-build:current \
-            bash -c "sudo ./build-vyos-image gcp --architecture amd64"
+            bash -c "build-vyos-image gcp --architecture amd64"            
 
 
       - name: Fix permissions
