@@ -36,6 +36,10 @@ jobs:
       - name: Install qemu-utils
         run: sudo apt-get update && sudo apt-get install -y qemu-utils
 
+      - name: Fix permissions
+        run: |
+          sudo chown -R $USER:$USER vyos-build/build        
+
       # 4️⃣ Convert ISO to RAW image
       - name: Convert ISO to RAW
         run: |
