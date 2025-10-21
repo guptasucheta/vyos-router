@@ -1,0 +1,91 @@
+name: Build VyOS 1.3 RAW Image for GCP
+
+on:
+  workflow_dispatch:
+    inputs:
+      gcp_project_id:
+        description: "GCP Project ID where the image will be uploaded"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      BUCKET_NAME: vyos-images-v1
+      PROJECT_ID: ${{ github.event.inputs.gcp_project_id }}
+
+    steps:
+
+      - name: Checkout vyos-build repository
+        uses: actions/checkout@v4
+        with:
+          repository: vyos/vyos-build
+          ref: equuleus      # VyOS 1.3 (LTS) branch
+          path: vyos-build
+
+
+      - name: Build VyOS GCP RAW image
+        run: |
+          cd vyos-build
+          sudo docker run --rm --privileged \
+            -v $(pwd):/vyos -w /vyos vyos/vyos-build:current \
+            bash -c "sudo ./build-vyos-image gcp --architecture amd64"
+
+
+      - name: Fix permissions
+        run: |
+          sudo chown -R $USER:$USER vyos-build/build
+
+
+      - name: Package RAW image
+        run: |
+          cd vyos-build/build
+          RAW_FILE=$(ls vyos-*.raw | head -n 1)
+          echo "Found RAW image: $RAW_FILE"
+          mv "$RAW_FILE" disk.raw
+          TAR_FILE="vyos-gcp-$(date +%Y%m%d%H%M).tar.gz"
+          echo "Creating $TAR_FILE..."
+          tar -czvf "$TAR_FILE" disk.raw
+          echo "Created tarball: $TAR_FILE"
+
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          export_default_credentials: true
+
+
+      - name: Upload VyOS RAW tarball to GCS
+        run: |
+          cd vyos-build/build
+          TAR_FILE=$(ls vyos-gcp-*.tar.gz | head -n 1)
+          echo "Uploading $TAR_FILE to gs://${BUCKET_NAME}/"
+          gsutil cp "$TAR_FILE" "gs://${BUCKET_NAME}/"
+
+
+      - name: Create GCP Image from TAR
+        run: |
+          TAR_FILE=$(ls vyos-build/build/vyos-gcp-*.tar.gz | head -n 1)
+          IMAGE_NAME="vyos-$(date +%Y%m%d%H%M)"
+          echo "Creating image ${IMAGE_NAME} from GCS tarball..."
+          gcloud compute images create "$IMAGE_NAME" \
+            --project "${PROJECT_ID}" \
+            --source-uri "https://storage.googleapis.com/${BUCKET_NAME}/$(basename $TAR_FILE)" \
+            --guest-os-features "UEFI_COMPATIBLE" \
+            --storage-location "us-central1"
+          echo "GCP Image created: ${IMAGE_NAME}"
+
+
+      - name: Upload artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: vyos-gcp-raw-tarball
+          path: vyos-build/build/vyos-gcp-*.tar.gz
