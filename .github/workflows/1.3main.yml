@@ -59,6 +59,12 @@ jobs:
           echo "Compressing $RAW_FILE -> $TAR_FILE"
           tar -czvf "$TAR_FILE" "$RAW_FILE"
 
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          
       # 6️⃣ Setup gcloud CLI
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
