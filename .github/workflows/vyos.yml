@@ -28,8 +28,8 @@ jobs:
         run: |
           cd vyos-build
           sudo docker run --rm --privileged \
-            -v $(pwd):/vyos -w /vyos vyos/vyos-build:current \
-            bash -c "build-vyos-image gcp --architecture amd64"            
+            -v $(pwd):/vyos -w /vyos vyos/vyos-build:equuleus \
+            bash -c "sudo bash scripts/build-vyos-image gcp --architecture amd64"       
 
 
       - name: Fix permissions
