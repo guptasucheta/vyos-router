@@ -50,14 +50,17 @@ jobs:
           echo "Converting $ISO_FILE -> $RAW_FILE"
           qemu-img convert -O raw "$ISO_FILE" "$RAW_FILE"
 
-      # 5️⃣ Create GCP-compatible tar.gz
       - name: Package RAW image
         run: |
           cd vyos-build/build
+          # Pick the raw image
           RAW_FILE=$(ls vyos-*.raw | head -n 1)
+          # Rename to disk.raw (required by GCP)
+          mv "$RAW_FILE" disk.raw
+          # Create the tar.gz
           TAR_FILE="${RAW_FILE%.raw}.tar.gz"
-          echo "Compressing $RAW_FILE -> $TAR_FILE"
-          tar -czvf "$TAR_FILE" "$RAW_FILE"
+          echo "Compressing disk.raw -> $TAR_FILE"
+          tar -czvf "$TAR_FILE" disk.raw
 
 
       - name: Authenticate to GCP
